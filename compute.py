@@ -32,7 +32,7 @@ def run_langevin(model, nsteps=1000000, dt=0.01, kbT=1.0, mu=1.0, gamma=1.0):
 
 def plot_x_inverted(model, x):
     plt.plot(x)
-    plt.savefig("trace.dat")
+    plt.savefig("trace.png")
     
     plt.figure()
     x -= np.mean(x)
@@ -45,4 +45,4 @@ def plot_x_inverted(model, x):
     realstuff -= np.min(model.net_potential(bin_avg))
     plt.plot(bin_avg,pmf)
     plt.plot(bin_avg,realstuff,'g',lw=2)
-    plt.savefig("energy_levels.dat")
+    plt.savefig("energy_levels.png")

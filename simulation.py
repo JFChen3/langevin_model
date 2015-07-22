@@ -4,9 +4,10 @@ Package containing functions for running a simulation
 
 
 import argparse
-import langevin.model as model
-import langevin.compute as compute
+import langevin_model.model as model
+import langevin_model.compute as compute
 import os
+import numpy as np
 
 def run_sim(args):
     cwd = os.getcwd()
@@ -20,10 +21,10 @@ def run_sim(args):
     except:
         pass
         
-    np.savetxt("%s/position.dat"%iterdir)
-    np.savetxt("%s/velocity.dat"%iterdir)
+    np.savetxt("%s/position.dat"%iterdir, x)
+    np.savetxt("%s/velocity.dat"%iterdir, v)
     os.chdir(iterdir)
-    compute.plot_x_inverted(model,x)
+    compute.plot_x_inverted(new,x)
     
     
 def get_args():
