@@ -31,6 +31,7 @@ def run_langevin(model, nsteps=1000000, dt=0.01, kbT=1.0, mu=1.0, gamma=1.0):
     
 
 def plot_x_inverted(model, x):
+    plt.figure()
     plt.plot(x)
     plt.savefig("trace.png")
     
