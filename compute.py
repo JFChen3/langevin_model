@@ -7,10 +7,11 @@ from scipy import stats
 
 
 
-def run_langevin(model, nsteps=1000000, dt=0.01, kbT=1.0, mu=1.0, gamma=1.0):
+def run_langevin(model, nsteps=1000000, dt=0.01, kbT=1.0, mu=1.0, gamma=1.0, initial_x=2.0):
     sigma = np.sqrt(2.*kbT*gamma/mu)
 
     x = np.zeros(nsteps,float)
+    x[0] = initial_x
     v = np.zeros(nsteps,float)
 
     xi = np.random.normal(0,1,nsteps)
