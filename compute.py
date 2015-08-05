@@ -107,14 +107,20 @@ def fit_jacobian():
 ##plotting functions    
 def plot_x_histogram(x, title, nbins=400, histrange=(-20.0,20.0)):
     plt.figure()
-    hist, edges, slices = stats.binned_statistic(x, np.ones(np.shape(x)[0]), statistic="sum", range=[histrange], bins=nbins)
-    hist = hist/(np.sum(hist) * (float(histrange[1]-histrange[0]) / float(nbins)))
-    bincenters = 0.5*(edges[1:] + edges[:-1])
+    hist, bincenters, slices = hist_x_histogram(x, nbins=nbins, histrange=histrange)
     plt.plot(bincenters, hist, 'ok')
     plt.savefig("position_histogram.png")
     np.savetxt("%s.dat"%title, np.array([bincenters, hist]).transpose())
+    
     return hist, bincenters, slices, (float(histrange[1]-histrange[0]) / float(nbins))
-     
+    
+def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
+    hist, edges, slices = stats.binned_statistic(x, np.ones(np.shape(x)[0]), statistic="sum", range=[histrange], bins=nbins)
+    hist = hist/(np.sum(hist) * (float(histrange[1]-histrange[0]) / float(nbins)))
+    bincenters = 0.5*(edges[1:] + edges[:-1])
+    
+    return hist, bincenters, slices
+         
 def plot_x_inverted(model, x):
     plt.figure()
     plt.plot(x)

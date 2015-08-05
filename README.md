@@ -26,5 +26,7 @@ compute.py:
 
 For running langevin dynamics, computing output files and analyzing the results. This is where the heavy computation takes place.
 
+analysis.py:
 
+For running some basic analysis on the outputs, e.g. plotting energy land scapes or position histograms
 

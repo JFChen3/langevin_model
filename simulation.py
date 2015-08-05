@@ -132,7 +132,7 @@ def get_args():
     parser.add_argument("--name", default="simple", type=str)
     
     ##real parser
-    par = argparse.ArgumentParser(description="Options for Jac_run_module. Use --cwd for analysis on not the current working directory")
+    par = argparse.ArgumentParser(description="Specify step sim, jac, fit, or next.")
     sub = par.add_subparsers(dest="step")
     
     sim_sub = sub.add_parser("sim", parents=[parser], help="For running a regular simulation")
