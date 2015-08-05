@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 import langevin_model.compute as compute
 
-def run_histogram(name, savedir, iter_range, iter_step, reference_set, nbins, histrange, axis):
+def run_histogram(name, savedir, iters, reference_set, nbins, histrange, axis, title):
     cwd = os.getcwd()
     if not os.path.isdir(savedir):
         os.mkdir(savedir)
@@ -21,7 +21,8 @@ def run_histogram(name, savedir, iter_range, iter_step, reference_set, nbins, hi
     all_hist.append(refhist)
     all_bincenters.append(centershist)
     label.append("FRET")
-    for i in np.arange(iter_range[0], iter_range[1]+1, iter_step):
+    
+    for i in iters:
         print "Loading iteration %d" % i
         x = np.loadtxt("iteration_%d/position.dat" %i)
         hist, bincenters, slices = compute.hist_x_histogram(x, nbins=nbins, histrange=histrange)
@@ -30,7 +31,7 @@ def run_histogram(name, savedir, iter_range, iter_step, reference_set, nbins, hi
         label.append("I-%d"%i)
     
     os.chdir(savedir)
-    plot_simple(all_bincenters, all_hist, label, "Iter%d-%d_%dstep"%(iter_range[0], iter_range[1], iter_step), "Position", "Probability", axis=axis) 
+    plot_simple(all_bincenters, all_hist, label, "Iter%d-%d_%s"%(np.min(iters), np.max(iters), title), "Position", "Probability", axis=axis) 
     
 def plot_simple(x, y, label, title, xaxis_label, yaxis_label, axis=None):
     """plot_simple is for a simple x-y plot with the dots connected.  """    
@@ -84,7 +85,7 @@ def get_args():
     parser = argparse.ArgumentParser(description="parent set of parameters", add_help=False)
     parser.add_argument("--name", default="simple", type=str)
     parser.add_argument("--savedir", default="%s/analysis"%os.getcwd(), type=str)
-    
+    parser.add_argument("--title", default="plot", type=str)
     ##real parser
     par = argparse.ArgumentParser(description="Specify hist")
     sub = par.add_subparsers(dest="step")
@@ -92,6 +93,7 @@ def get_args():
     hist_sub = sub.add_parser("hist", parents=[parser], help="for specifying histogramming an iteration range")
     hist_sub.add_argument("--range", nargs=2, type=int, default=[0,1])
     hist_sub.add_argument("--iter_step", type=int, default=1)
+    hist_sub.add_argument("--iters", nargs="+", type=int, default=None)
     hist_sub.add_argument("--reference_set", type=str, default="ideal_set.dat")
     hist_sub.add_argument("--nbins", type=int, default=400)
     hist_sub.add_argument("--histrange", nargs=2, type=float, default=[-20.0, 20.0])
@@ -104,4 +106,9 @@ if __name__ == "__main__":
     args = get_args()
     if args.step == "hist":
         print "Starting histogram analysis"
-        run_histogram(args.name, args.savedir, args.range, args.iter_step, args.reference_set, args.nbins, args.histrange, args.axis)
+        if args.iters == None:
+            iters = np.arange(args.range[0], args.range[1]+1, args.iter_step)
+        else:
+            iters = args.iters
+        run_histogram(args.name, args.savedir, iters, args.reference_set, args.nbins, args.histrange, args.axis, args.title)
+        
