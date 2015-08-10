@@ -25,6 +25,7 @@ def run_sim(args):
     np.savetxt("%s/velocity.dat"%iterdir, v)
     os.chdir(iterdir)
     compute.plot_x_inverted(new,x)
+    new.save_parameter_files()
     
     
     

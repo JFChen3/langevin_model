@@ -98,7 +98,20 @@ class langevin_model(object):
 
         with open("%s.ini" % self.name,"w") as cfgfile:
             config.write(cfgfile)
-
+    
+    def save_parameter_files(self):
+        np.savetxt("params", self.params)
+        potentials_string = ""
+        
+        for i in range(len(self.potentials)):
+            potentials_string += "%2d    " % self.potentials[i]
+            for j in range(len(self.potentials_arguments)):
+                potentials_string += "%10f " % j
+                potentials_string += "\n"
+        f = open("potentials", "w")
+        f.write(potentials_string)
+        f.close()
+        
 def choose_potential(index, args):
     potential = {0:Harmonic_trap_V, 
                  1:Harmonic_V,
