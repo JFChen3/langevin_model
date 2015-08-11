@@ -9,6 +9,7 @@ import langevin_model.compute as compute
 import langevin_model.model as model
 
 def run_energy_plotting(name, savedir, iters, plot_range, plot_step, axis, title):
+    #plot the potnetial energy of several different iterations
     cwd = os.getcwd()
     new = model.langevin_model(name)
     plot_values = np.arange(plot_range[0], plot_range[1], plot_step)
@@ -48,6 +49,7 @@ def run_energy_plotting(name, savedir, iters, plot_range, plot_step, axis, title
     os.chdir(cwd)
         
 def run_histogram(name, savedir, iters, reference_set, nbins, histrange, axis, title):
+    #plot the histogram of several different iterations
     cwd = os.getcwd()
     
     all_hist = []
@@ -72,6 +74,7 @@ def run_histogram(name, savedir, iters, reference_set, nbins, histrange, axis, t
     plot_simple(all_bincenters, all_hist, label, "Iter%d-%d_%s"%(np.min(iters), np.max(iters), title), "Position", "Probability", axis=axis) 
 
 def plot_one_simple(x, y, title, xaxis_label, yaxis_label, axis=None):
+    #general plot function for a single line with a title and axis labeled
     plt.figure()
     plt.plot(x, y, alpha=1, linewidth=3, linestyle="-", color="k")
     if not axis == None:
@@ -119,7 +122,7 @@ def plot_simple(x, y, label, title, xaxis_label, yaxis_label, axis=None, marker_
     plt.savefig("%s.png"%title)
     
     #plt.show()
-
+#useful functions for plotting methods
 def return_max(cmax, nmax):
     if cmax < nmax:
         return nmax
@@ -131,7 +134,10 @@ def return_min(cmin, nmin):
         return cmin
     else:
         return nmin
+        
+###Argument functions below###        
 def sanitize_args(args):
+    #clean the arguments
     cwd = os.getcwd()
     
     #make savedir if not found, go to it, and save the full path for savedir
@@ -143,7 +149,9 @@ def sanitize_args(args):
     os.chdir(cwd)
         
     return args
+    
 def get_args():
+    #load arguments from command line
     parser = argparse.ArgumentParser(description="parent set of parameters", add_help=False)
     parser.add_argument("--name", default="simple", type=str)
     parser.add_argument("--savedir", default="%s/analysis"%os.getcwd(), type=str)

@@ -8,6 +8,7 @@ from scipy import stats
 
 
 def run_langevin(model, nsteps=1000000, dt=0.01, kbT=1.0, mu=1.0, gamma=1.0, initial_x=2.0):
+    #runs a langevin dynamics at the specified temperatures and other factors
     sigma = np.sqrt(2.*kbT*gamma/mu)
 
     x = np.zeros(nsteps,float)
@@ -63,6 +64,7 @@ def compute_jacobian(model, x, slices, sim_feature, nbins, spacing):
     
         
 def fit_jacobian():
+    #loads in the expected files and outputs a set of fitted models at different truncations
     target_feature = np.loadtxt("target_feature.dat")
     sim_feature = np.loadtxt("sim_feature.dat")
     Jacobian = np.loadtxt("Jacobian.dat")
@@ -106,15 +108,17 @@ def fit_jacobian():
     
 ##plotting functions    
 def plot_x_histogram(x, title, nbins=400, histrange=(-20.0,20.0)):
+    #plot a histogram of the position distribution. Also returns the histogram information and slices for analysis
     plt.figure()
     hist, bincenters, slices = hist_x_histogram(x, nbins=nbins, histrange=histrange)
     plt.plot(bincenters, hist, 'ok')
-    plt.savefig("position_histogram.png")
+    plt.savefig("histogram_position.png")
     np.savetxt("%s.dat"%title, np.array([bincenters, hist]).transpose())
     
     return hist, bincenters, slices, (float(histrange[1]-histrange[0]) / float(nbins))
     
 def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
+    #actually perform the histogramming and returns the histogram information
     hist, edges, slices = stats.binned_statistic(x, np.ones(np.shape(x)[0]), statistic="sum", range=[histrange], bins=nbins)
     hist = hist/(np.sum(hist) * (float(histrange[1]-histrange[0]) / float(nbins)))
     bincenters = 0.5*(edges[1:] + edges[:-1])
@@ -122,6 +126,7 @@ def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
     return hist, bincenters, slices
          
 def plot_x_inverted(model, x):
+    #Plot the free energy of the system in x.
     plt.figure()
     plt.plot(x)
     plt.savefig("trace.png")

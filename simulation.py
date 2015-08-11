@@ -10,10 +10,13 @@ import os
 import numpy as np
 
 def run_sim(args):
+    #run_sim runs a stanard simulation based on the args given. 
     cwd = os.getcwd()
-    new = model.langevin_model(args.name)
+    new = model.langevin_model(args.name) #load the model
     
-    x,v = compute.run_langevin(new, nsteps=args.steps)
+    x,v = compute.run_langevin(new, nsteps=args.steps) #run the actual computation
+    
+    #save the results below and make the appropriate directories
     iterdir = "iteration_%d"%new.iteration
     
     try:
@@ -31,9 +34,11 @@ def run_sim(args):
     
 ##jacobian calculations:
 def run_jac_procedure(args):
+    #run_jac runs a jacobian calculating procedure. Currently only implemented for a FRET fitting
+    #Set file locations and load necessary files
     target_feature = np.loadtxt(args.target)
     cwd = os.getcwd()
-    new = model.langevin_model(args.name)
+    new = model.langevin_model(args.name) #load the model
     iterdir = "%s/iteration_%d"%(cwd,new.iteration)
     newtondir = "%s/newton" % iterdir
     try:
@@ -43,10 +48,11 @@ def run_jac_procedure(args):
         
     os.chdir(iterdir)
     x = np.loadtxt("position.dat")
-    range_hist = (-1.0*args.histrange, 1.0*args.histrange)
-    sim_feature, bincenters, slices, spacing = compute.plot_x_histogram(x, "iteration_%d"%new.iteration, nbins=args.nbins, histrange=range_hist) 
-    Jacobian = compute.compute_jacobian(new,x, slices, sim_feature, args.nbins, spacing)        
+    range_hist = (-1.0*args.histrange, 1.0*args.histrange) 
+    sim_feature, bincenters, slices, spacing = compute.plot_x_histogram(x, "iteration_%d"%new.iteration, nbins=args.nbins, histrange=range_hist) #plot histogram and return histogram values
+    Jacobian = compute.compute_jacobian(new,x, slices, sim_feature, args.nbins, spacing) #compute the jacobian the FRET way       
     
+    #save the files
     os.chdir(newtondir)
     np.savetxt("sim_feature.dat", sim_feature)
     np.savetxt("target_feature.dat", target_feature)
@@ -54,8 +60,10 @@ def run_jac_procedure(args):
     compute.fit_jacobian()
     
 def run_fit_procedure(args):   
+    #run_fit_proecdure runs the actual fitting procedure, currently TSVD method. 
+    #load files and set necessary directories
     cwd = os.getcwd()
-    new = model.langevin_model(args.name)
+    new = model.langevin_model(args.name) #load the model
 
     cwd = os.getcwd()
     new = model.langevin_model(args.name)
@@ -63,37 +71,43 @@ def run_fit_procedure(args):
     newtondir = "%s/newton" % iterdir
     
     os.chdir(newtondir)
-    lambda_index = get_lambda_index(args.cutoff)
-    param_changes = np.loadtxt("xp_%d.dat" % lambda_index)
+    lambda_index = get_lambda_index(args.cutoff) #get the lambda index for the cutoff value
+    param_changes = np.loadtxt("xp_%d.dat" % lambda_index) #load the correct file
     
-    if np.max(param_changes) > args.scale:
+    #now re-scale the solution so that it is not too large.
+    if np.max(param_changes) > args.scale: 
         param_changes *= (args.scale/np.max(param_changes))
-        
+    
+    #apply the changes to the parameters    
     count = 0
     for i in new.fit_indices:
         new.params[i] += param_changes[count]
         count += 1
-    
+    #save the changes
     np.savetxt("params", new.params)
 
 def run_next_step(args):
+    #run_next_step takes the previously found params in iteration_i/newton/params and sets up the ini file for iteration i+1
+    #set necessary directories
     cwd = os.getcwd()
-    new = model.langevin_model(args.name)
+    new = model.langevin_model(args.name) #load the model
     
     cwd = os.getcwd()
     new = model.langevin_model(args.name)
     iterdir = "%s/iteration_%d"%(cwd,new.iteration)
     newtondir = "%s/newton" % iterdir
     
+    
     new.iteration += 1
     
     new.save_params_file = "%s/params" % newtondir
-    
+    #save ini file with new location of the new model params
     if args.start:
         new.save_ini_file()
-        
+    #note, finishes and does not start the next simulation run    
     
 def get_lambda_index(cutoff):
+    #returns the index of the xp_?.dat file corresponding to the cutoff value
     if cutoff == 0:
         return 0
     else:
@@ -112,6 +126,7 @@ def get_lambda_index(cutoff):
         return i-1
         
 def test_truncate(lam, svf, trunc):
+    #checks to see if the particular set of lambda values are above and below the cutoff value
     if svf[0] < lam:
         raise IOError("Larges singular value is smaller than the truncate value, consider changing")
     elif svf[np.shape(svf)[0]-1] > lam:
