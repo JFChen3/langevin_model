@@ -153,26 +153,26 @@ def sanitize_args(args):
 def get_args():
     #load arguments from command line
     parser = argparse.ArgumentParser(description="parent set of parameters", add_help=False)
-    parser.add_argument("--name", default="simple", type=str)
-    parser.add_argument("--savedir", default="%s/analysis"%os.getcwd(), type=str)
-    parser.add_argument("--title", default="plot", type=str)
-    parser.add_argument("--axis", nargs=4, type=float, default=None)
-    parser.add_argument("--range", nargs=2, type=int, default=[0,1])
-    parser.add_argument("--iter_step", type=int, default=1)
-    parser.add_argument("--iters", nargs="+", type=int, default=None)
+    parser.add_argument("--name", default="simple", type=str, help="specify name of model .ini file. Default='simple'")
+    parser.add_argument("--savedir", default="%s/analysis"%os.getcwd(), type=str, help="specify save dir. Default='analysis'")
+    parser.add_argument("--title", default="plot", type=str, help="specify save name and title for the plot. Default='plot'")
+    parser.add_argument("--axis", nargs=4, type=float, default=None, help="specify the axis for the plot. Default=None")
+    parser.add_argument("--range", nargs=2, type=int, default=[0,1], help="specify the range of iterations to use. Default=[0,1]")
+    parser.add_argument("--iter_step", type=int, default=1, help="specify the increment for iterations to use. Default=1")
+    parser.add_argument("--iters", nargs="+", type=int, default=None, help="specify the specific iterations to use in some irregular increment and range. Overrides --range and --iter_step flags. Default=None")
     ##real parser
     par = argparse.ArgumentParser(description="Specify hist")
     sub = par.add_subparsers(dest="step")
     
     hist_sub = sub.add_parser("hist", parents=[parser], help="for specifying histogramming an iteration range")
-    hist_sub.add_argument("--reference_set", type=str, default="ideal_set.dat")
-    hist_sub.add_argument("--nbins", type=int, default=400)
-    hist_sub.add_argument("--histrange", nargs=2, type=float, default=[-20.0, 20.0])
+    hist_sub.add_argument("--reference_set", type=str, default="ideal_set.dat", help="specify the reference data set for the histogram. Default='ideal_set.dat'")
+    hist_sub.add_argument("--nbins", type=int, default=400, help="specify the number of histogram bins to use. Default=400")
+    hist_sub.add_argument("--histrange", nargs=2, type=float, default=[-20.0, 20.0], help="specify the range to histogram over. Default=[-20.0,20.0]")
     
     
     energy_sub = sub.add_parser("energy", parents=[parser], help="for specifying the plotting of potential energies")
-    energy_sub.add_argument("--plot_range", nargs=2, type=float, default=[-20.0,20.0])
-    energy_sub.add_argument("--plot_step", default=0.1, type=float)
+    energy_sub.add_argument("--plot_range", nargs=2, type=float, default=[-20.0,20.0], help="specify the range to plot the potential over. Default=[-20.0,20.0]")
+    energy_sub.add_argument("--plot_step", default=0.1, type=float, help="specify the spacing between plotted energy levels. Default=0.1")
     
     args = par.parse_args()
     args = sanitize_args(args)
