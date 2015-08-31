@@ -162,6 +162,19 @@ def plot_x_histogram(x, title, nbins=400, histrange=(-20.0,20.0)):
     
     return hist, bincenters, slices, (float(histrange[1]-histrange[0]) / float(nbins))
     
+def plot_tmatrix(x, title, nbins=400, histrange=(-20.0, 20.0), framestep=200)
+    #plot and save transition matrix
+    plt.figure()
+    tmatrix, bincenters, slices = calc_tmatrix(x, nbins=nbins, histrange=histrange, framestep=framestep)
+    plt.pcolormesh(matrix, vmin=0, vmax=0.5)
+    cbar = plt.colorbar()
+    plt.xlabel("State j")
+    plt.ylabel("State i")
+    plt.savefig("transition_matrix.png")
+    np.savetxt("%s.dat"%title, tmatrix)
+    
+    return tmatrix, bincenters, slices, (float(histrange[1]-histrange[0]) / float(nbins))
+    
 def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
     #actually perform the histogramming and returns the histogram information
     hist, edges, slices = stats.binned_statistic(x, np.ones(np.shape(x)[0]), statistic="sum", range=[histrange], bins=nbins)
@@ -169,7 +182,27 @@ def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
     bincenters = 0.5*(edges[1:] + edges[:-1])
     
     return hist, bincenters, slices
-         
+    
+def calc_tmatrix(x, nbins=400, histrange=(-20.0,20.0), framestep=200)
+    #calculate transition matrix from trace data
+    hist, bincenters, slices = hist_x_histogram(x, nbins=nbins, histrange=histrange)
+    bin_indices = slices-1
+    
+    tmatrix = np.zeros((nbins, nbins))
+    
+    # Add ones to transition bins in square transition matrix
+    for i in range(np.shape(bin_indices)[0] - framestep):
+        tmatrix[bin_indices[i], bin_indices[i+framestep]] += 1
+    
+    # Mask zeros to avoid divide-by-zero in normalization
+    T_masked = np.ma.masked_where(tmatrix == 0, tmatrix)
+    
+    # Normalize each row
+    for i in range(np.shape(T_masked)[0]):
+        T_masked[i,:] /= np.sum(T_masked[i,:])
+            
+    return tmatrix, bincenters, slices
+    
 def plot_x_inverted(model, x):
     #Plot the free energy of the system in x.
     plt.figure()
