@@ -56,6 +56,7 @@ def run_jac_procedure(args):
     
     if args.data_type=="tmatrix":
         sim_feature, bincenters, slices, spacing = compute.plot_tmatrix(x, "iteration_%d"%new.iteration, nbins=args.nbins, histrange=range_hist, framestep=args.fstep)
+        sim_feature = np.ndarray.flatten(sim_feature)
         Jacobian = compute.compute_tmatrix_jacobian(new,x, slices, sim_feature, args.nbins, spacing, framestep=args.fstep) #compute Jacobian the tmatrix way
         
     #save the files

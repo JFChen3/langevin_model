@@ -74,7 +74,7 @@ def compute_tmatrix_jacobian(model, x, slices, sim_feature, nbins, spacing, fram
     #get transition bin indicies
     state_i = jac_indices[:-framestep]
     state_j = jac_indices[framestep:]
-    t_indices = state_i*num_bins + state_j
+    t_indices = state_i*nbins + state_j
     
     ##calculate tmatrix Jacobian (simple version for now, will add velocities later)
     Jacobian = np.zeros((nbins**2, model.number_fit_parameters))
@@ -162,11 +162,11 @@ def plot_x_histogram(x, title, nbins=400, histrange=(-20.0,20.0)):
     
     return hist, bincenters, slices, (float(histrange[1]-histrange[0]) / float(nbins))
     
-def plot_tmatrix(x, title, nbins=400, histrange=(-20.0, 20.0), framestep=200)
+def plot_tmatrix(x, title, nbins=400, histrange=(-20.0, 20.0), framestep=200):
     #plot and save transition matrix
     plt.figure()
     tmatrix, bincenters, slices = calc_tmatrix(x, nbins=nbins, histrange=histrange, framestep=framestep)
-    plt.pcolormesh(matrix, vmin=0, vmax=0.5)
+    plt.pcolormesh(tmatrix, vmin=0, vmax=0.5)
     cbar = plt.colorbar()
     plt.xlabel("State j")
     plt.ylabel("State i")
@@ -183,7 +183,7 @@ def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
     
     return hist, bincenters, slices
     
-def calc_tmatrix(x, nbins=400, histrange=(-20.0,20.0), framestep=200)
+def calc_tmatrix(x, nbins=400, histrange=(-20.0,20.0), framestep=200):
     #calculate transition matrix from trace data
     hist, bincenters, slices = hist_x_histogram(x, nbins=nbins, histrange=histrange)
     bin_indices = slices-1
