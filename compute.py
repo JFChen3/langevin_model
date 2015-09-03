@@ -200,7 +200,9 @@ def calc_tmatrix(x, nbins=400, histrange=(-20.0,20.0), framestep=200):
     # Normalize each row
     for i in range(np.shape(T_masked)[0]):
         T_masked[i,:] /= np.sum(T_masked[i,:])
-            
+    
+    tmatrix = T_masked
+    
     return tmatrix, bincenters, slices
     
 def plot_x_inverted(model, x):
