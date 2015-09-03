@@ -55,9 +55,17 @@ def run_jac_procedure(args):
         Jacobian = compute.compute_jacobian(new,x, slices, sim_feature, args.nbins, spacing) #compute the jacobian the FRET way       
     
     if args.data_type=="tmatrix":
-        sim_feature, bincenters, slices, spacing = compute.plot_tmatrix(x, "iteration_%d"%new.iteration, nbins=args.nbins, histrange=range_hist, framestep=args.fstep)
+        sim_feature, bincenters, slices, ran_size, spacing = compute.plot_tmatrix(x, "iteration_%d"%new.iteration, nbins=args.nbins, histrange=range_hist, framestep=args.fstep)
+        slices -= (ran_size[0] + 1)
+        nbins_use = np.shape(sim_feature)[0] #number of bins in trimmed matrix
         sim_feature = np.ndarray.flatten(sim_feature)
-        Jacobian = compute.compute_tmatrix_jacobian(new,x, slices, sim_feature, args.nbins, spacing, framestep=args.fstep) #compute Jacobian the tmatrix way
+        #trim and flatten target_feature
+        target_feature = target_feature[ran_size[0]:ran_size[1], ran_size[0]:ran_size[1]]
+        if not np.shape(target_feature)[0] == nbins_use:
+            raise ValueError("target_feature and sim_feature have different dimensions!")
+        target_feature = np.ndarray.flatten(target_feature)
+        Jacobian = compute.compute_tmatrix_jacobian(new,x, slices, sim_feature, nbins_use, spacing, framestep=args.fstep) #compute Jacobian the tmatrix way
+        
         
     #save the files
     os.chdir(newtondir)

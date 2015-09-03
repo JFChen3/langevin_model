@@ -81,6 +81,7 @@ def compute_tmatrix_jacobian(model, x, slices, sim_feature, nbins, spacing, fram
     qi = np.zeros((nbins, model.number_fit_parameters))
     qi_count = np.zeros(nbins)
     
+    print np.shape(qi)
     #q values for all frames starting in a particular bin
     for idx, jac_bin_location in enumerate(jac_indices[:-framestep]):
         qi[jac_bin_location,:] += (fenergy[idx,:] + fenergy[idx+framestep,:])
@@ -155,7 +156,7 @@ def fit_jacobian():
 def plot_x_histogram(x, title, nbins=400, histrange=(-20.0,20.0)):
     #plot a histogram of the position distribution. Also returns the histogram information and slices for analysis
     plt.figure()
-    hist, bincenters, slices = hist_x_histogram(x, nbins=nbins, histrange=histrange)
+    hist, bincenters, slices, ran_size = hist_x_histogram(x, nbins=nbins, histrange=histrange)
     plt.plot(bincenters, hist, 'ok')
     plt.savefig("histogram_position.png")
     np.savetxt("%s.dat"%title, np.array([bincenters, hist]).transpose())
@@ -165,7 +166,7 @@ def plot_x_histogram(x, title, nbins=400, histrange=(-20.0,20.0)):
 def plot_tmatrix(x, title, nbins=400, histrange=(-20.0, 20.0), framestep=200):
     #plot and save transition matrix
     plt.figure()
-    tmatrix, bincenters, slices = calc_tmatrix(x, nbins=nbins, histrange=histrange, framestep=framestep)
+    tmatrix, bincenters, slices, ran_size = calc_tmatrix(x, nbins=nbins, histrange=histrange, framestep=framestep)
     plt.pcolormesh(tmatrix, vmin=0, vmax=0.5)
     cbar = plt.colorbar()
     plt.xlabel("State j")
@@ -173,7 +174,7 @@ def plot_tmatrix(x, title, nbins=400, histrange=(-20.0, 20.0), framestep=200):
     plt.savefig("transition_matrix.png")
     np.savetxt("%s.dat"%title, tmatrix)
     
-    return tmatrix, bincenters, slices, (float(histrange[1]-histrange[0]) / float(nbins))
+    return tmatrix, bincenters, slices, ran_size, (float(histrange[1]-histrange[0]) / float(nbins))
     
 def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
     #actually perform the histogramming and returns the histogram information
@@ -181,11 +182,15 @@ def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
     hist = hist/(np.sum(hist) * (float(histrange[1]-histrange[0]) / float(nbins)))
     bincenters = 0.5*(edges[1:] + edges[:-1])
     
-    return hist, bincenters, slices
+    #find non-zero bins
+    nonzero_bins = np.nonzero(hist)
+    ran_size = (np.min(nonzero_bins), np.max(nonzero_bins))
+    
+    return hist, bincenters, slices, ran_size
     
 def calc_tmatrix(x, nbins=400, histrange=(-20.0,20.0), framestep=200):
     #calculate transition matrix from trace data
-    hist, bincenters, slices = hist_x_histogram(x, nbins=nbins, histrange=histrange)
+    hist, bincenters, slices, ran_size = hist_x_histogram(x, nbins=nbins, histrange=histrange)
     bin_indices = slices-1
     
     tmatrix = np.zeros((nbins, nbins))
@@ -201,9 +206,10 @@ def calc_tmatrix(x, nbins=400, histrange=(-20.0,20.0), framestep=200):
     for i in range(np.shape(T_masked)[0]):
         T_masked[i,:] /= np.sum(T_masked[i,:])
     
-    tmatrix = T_masked
+    tmatrix = T_masked[ran_size[0]:ran_size[1], ran_size[0]:ran_size[1]]
+    tmatrix = np.ma.filled(tmatrix,0)
     
-    return tmatrix, bincenters, slices
+    return tmatrix, bincenters, slices, ran_size
     
 def plot_x_inverted(model, x):
     #Plot the free energy of the system in x.
