@@ -108,7 +108,45 @@ def compute_tmatrix_jacobian(model, x, slices, sim_feature, nbins, spacing, fram
     Jacobian *= -1.0
     
     return Jacobian
+    
+def compute_tmatrix_jac_new(model, x, slices, sim_feature, nbins, spacing, framestep):
+    #get all functions values for each frame:
+    fenergy = np.zeros((np.shape(x)[0], model.number_fit_parameters))
+    fenergy_index = 0
+    jac_indices = slices - 1
+    for i in model.fit_indices:
+        fenergy[:, fenergy_index] = model.potential_functions[i](x)
+        fenergy_index += 1
+    
+    #get transition bin indicies
+    state_i = jac_indices[:-framestep]
+    state_j = jac_indices[framestep:]
+    t_indices = state_i*nbins + state_j
+    
+    ##calculate tmatrix Jacobian
+    Jacobian = np.zeros((nbins**2, model.number_fit_parameters))
+    
+    #energy difference between j and i for each transition
+    for idx, bin_location in enumerate(t_indices):
+        Jacobian[t_bin_location,:] += (fenergy[idx+framestep,:] - fenergy[idx,:])
+        tij_count[t_bin_location] += 1
         
+    for i in range(np.shape(Jacobian)[0]):
+        if tij_count[i] != 0:
+            Jacobian[i,:] /= (tij_count[i,:])
+    
+    return Jacobian
+
+def fit_temp():
+    #temporary hack for testing new tmatrix procedure, bypasses matrix inversion step
+    target_feature = np.loadtxt("target_feature.dat")
+    sim_feature = np.loadtxt("sim_feature.dat")
+    J_pinv = np.transpose(np.loadtxt("Jacobian.dat"))
+    
+    df = target_feature - sim_feature
+    x_soln = np.dot(J_pinv,df)
+    np.savetxt("xp_%0.dat", x_soln)
+    
 def fit_jacobian():
     #loads in the expected files and outputs a set of fitted models at different truncations
     target_feature = np.loadtxt("target_feature.dat")
@@ -178,7 +216,7 @@ def plot_tmatrix(x, title, nbins=400, histrange=(-20.0, 20.0), framestep=200):
     
 def hist_x_histogram(x, nbins=400, histrange=(-20.0,20.0)):
     #actually perform the histogramming and returns the histogram information
-    hist, edges, slices = stats.binned_statistic(x, np.ones(np.shape(x)[0]), statistic="sum", range=[histrange], bins=nbins)
+    hist, edges, slices = stats.binned_statistic(x, np.ones(np.shape(x)[0]), statistic="sum", range=np.array(histrange), bins=nbins)
     hist = hist/(np.sum(hist) * (float(histrange[1]-histrange[0]) / float(nbins)))
     bincenters = 0.5*(edges[1:] + edges[:-1])
     

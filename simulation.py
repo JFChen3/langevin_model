@@ -53,8 +53,7 @@ def run_jac_procedure(args):
     sim_feature, bincenters, slices, spacing = compute.plot_x_histogram(x, "iteration_%d"%new.iteration, nbins=args.nbins, histrange=range_hist) #plot histogram and return histogram values
     if args.data_type=="FRET":
         Jacobian = compute.compute_jacobian(new,x, slices, sim_feature, args.nbins, spacing) #compute the jacobian the FRET way       
-    
-    if args.data_type=="tmatrix":
+    else:
         sim_feature, bincenters, slices, ran_size, spacing = compute.plot_tmatrix(x, "iteration_%d"%new.iteration, nbins=args.nbins, histrange=range_hist, framestep=args.fstep)
         slices -= (ran_size[0] + 1)
         nbins_use = np.shape(sim_feature)[0] #number of bins in trimmed matrix
@@ -64,9 +63,12 @@ def run_jac_procedure(args):
         if not np.shape(target_feature)[0] == nbins_use:
             raise ValueError("target_feature and sim_feature have different dimensions!")
         target_feature = np.ndarray.flatten(target_feature)
-        Jacobian = compute.compute_tmatrix_jacobian(new,x, slices, sim_feature, nbins_use, spacing, framestep=args.fstep) #compute Jacobian the tmatrix way
         
-        
+        if args.data_type=="tmatrix":
+            Jacobian = compute.compute_tmatrix_jacobian(new,x, slices, sim_feature, nbins_use, spacing, framestep=args.fstep) #compute Jacobian the tmatrix way
+        if args.data_type=="tmatrix_new":
+            Jacobian = compute.compute_tmatrix_jac_new(new,x, slices, sim_feature, nbins_use, spacing, framestep=args.fstep) #testing new tmatrix procedure
+
     #save the files
     os.chdir(newtondir)
     np.savetxt("sim_feature.dat", sim_feature)
@@ -173,7 +175,7 @@ def get_args():
     jac_sub.add_argument("--target", type=str, default="ideal_hist.dat", help="specify file for fitting the jacobian to")
     jac_sub.add_argument("--nbins", type=int, default=400)
     jac_sub.add_argument("--histrange", type=float, default=20.0)
-    jac_sub.add_argument("--data_type", type=str, default="FRET", choices=["FRET","tmatrix"], help="Specify FRET or tmatrix fitting")
+    jac_sub.add_argument("--data_type", type=str, default="FRET", choices=["FRET","tmatrix","new_tmatrix"], help="Specify FRET or tmatrix fitting")
     jac_sub.add_argument("--fstep", type=int, help="Specify lag step for tmatrix fitting")
     
     fit_sub = sub.add_parser("fit", parents=[parser], help="for taking a fitted simulation and calculating the new parameters")
