@@ -74,7 +74,10 @@ def run_jac_procedure(args):
     np.savetxt("sim_feature.dat", sim_feature)
     np.savetxt("target_feature.dat", target_feature)
     np.savetxt("Jacobian.dat", Jacobian)
-    compute.fit_jacobian()
+    if args.data_type=="tmatrix_new":
+        compute.fit_temp()
+    else:
+        compute.fit_jacobian()
     
 def run_fit_procedure(args):   
     #run_fit_proecdure runs the actual fitting procedure, currently TSVD method. 
