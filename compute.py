@@ -127,7 +127,7 @@ def compute_tmatrix_jac_new(model, x, slices, sim_feature, nbins, spacing, frame
     Jacobian = np.zeros((nbins**2, model.number_fit_parameters))
     
     #energy difference between j and i for each transition
-    for idx, bin_location in enumerate(t_indices):
+    for idx, t_bin_location in enumerate(t_indices):
         Jacobian[t_bin_location,:] += (fenergy[idx+framestep,:] - fenergy[idx,:])
         tij_count[t_bin_location] += 1
         
