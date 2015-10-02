@@ -66,7 +66,7 @@ def run_jac_procedure(args):
         
         if args.data_type=="tmatrix":
             Jacobian = compute.compute_tmatrix_jacobian(new,x, slices, sim_feature, nbins_use, spacing, framestep=args.fstep) #compute Jacobian the tmatrix way
-        if args.data_type=="tmatrix_new":
+        if args.data_type=="new_tmatrix":
             Jacobian = compute.compute_tmatrix_jac_new(new,x, slices, sim_feature, nbins_use, spacing, framestep=args.fstep) #testing new tmatrix procedure
 
     #save the files
@@ -74,7 +74,7 @@ def run_jac_procedure(args):
     np.savetxt("sim_feature.dat", sim_feature)
     np.savetxt("target_feature.dat", target_feature)
     np.savetxt("Jacobian.dat", Jacobian)
-    if args.data_type=="tmatrix_new":
+    if args.data_type=="new_tmatrix":
         compute.fit_temp()
     else:
         compute.fit_jacobian()
