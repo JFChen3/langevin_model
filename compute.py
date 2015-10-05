@@ -134,7 +134,7 @@ def compute_tmatrix_jac_new(model, x, slices, sim_feature, nbins, spacing, frame
         
     for i in range(np.shape(Jacobian)[0]):
         if tij_count[i] != 0:
-            Jacobian[i,:] /= (tij_count[i,:])
+            Jacobian[i,:] /= float(tij_count[i])
     
     return Jacobian
 
