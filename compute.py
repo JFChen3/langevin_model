@@ -146,7 +146,7 @@ def fit_temp():
     
     df = target_feature - sim_feature
     x_soln = np.dot(J_pinv,df)
-    np.savetxt("xp_%0.dat", x_soln)
+    np.savetxt("xp_0.dat", x_soln)
     
 def fit_jacobian():
     #loads in the expected files and outputs a set of fitted models at different truncations
