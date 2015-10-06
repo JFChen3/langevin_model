@@ -96,7 +96,7 @@ def run_fit_procedure(args):
     
     #now re-scale the solution so that it is not too large.
     if np.max(param_changes) > args.scale: 
-        param_changes *= (args.scale/np.max(param_changes))
+        param_changes *= (args.scale/np.max(np.abs(param_changes)))
     
     #apply the changes to the parameters    
     count = 0
