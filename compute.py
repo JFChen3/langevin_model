@@ -136,6 +136,8 @@ def compute_tmatrix_jac_new(model, x, slices, sim_feature, nbins, spacing, frame
         if tij_count[i] != 0:
             Jacobian[i,:] /= float(tij_count[i])
     
+    Jacobian *= -1.0
+    
     return Jacobian
 
 def fit_temp():
