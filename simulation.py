@@ -103,6 +103,9 @@ def run_fit_procedure(args):
     for i in new.fit_indices:
         new.params[i] += param_changes[count]
         count += 1
+    
+    params[params < args.pmin] = args.pmin
+    
     #save the changes
     np.savetxt("params", new.params)
 
@@ -184,6 +187,7 @@ def get_args():
     fit_sub = sub.add_parser("fit", parents=[parser], help="for taking a fitted simulation and calculating the new parameters")
     fit_sub.add_argument("--cutoff", default=0, type=float, help="specify the singular value cutoff default is 0, for all")
     fit_sub.add_argument("--scale", default = 0.2, type=float, help="specify the maximum step scale for the solution")
+    fit_sub.add_argument("--pmin", default = 0.01, type=float, help="specify the minimum param value")
     
     next_sub = sub.add_parser("next", parents=[parser], help="for taking the next step in the simulation")
     next_sub.add_argument("--start", default=False, dest="start", action="store_true")
