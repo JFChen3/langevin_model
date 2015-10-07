@@ -95,7 +95,7 @@ def run_fit_procedure(args):
     param_changes = np.loadtxt("xp_%d.dat" % lambda_index) #load the correct file
     
     #now re-scale the solution so that it is not too large.
-    if np.max(param_changes) > args.scale: 
+    if np.max(np.abs(param_changes)) > args.scale: 
         param_changes *= (args.scale/np.max(np.abs(param_changes)))
     
     #apply the changes to the parameters    
