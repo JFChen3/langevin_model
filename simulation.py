@@ -104,7 +104,7 @@ def run_fit_procedure(args):
         new.params[i] += param_changes[count]
         count += 1
     
-    params[params < args.pmin] = args.pmin
+    new.params[new.params < args.pmin] = args.pmin
     
     #save the changes
     np.savetxt("params", new.params)
